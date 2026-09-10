@@ -1,0 +1,36 @@
+/**
+ * Centralized Token Storage Utility (localStorage with fallback)
+ */
+
+const ACCESS_TOKEN_KEY = 'fintrack_access_token';
+const REFRESH_TOKEN_KEY = 'fintrack_refresh_token';
+
+export const tokenStorage = {
+  getAccessToken: (): string | null => {
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
+  },
+
+  getRefreshToken: (): string | null => {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  },
+
+  setTokens: (access: string, refresh: string): void => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, access);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+  },
+
+  setAccessToken: (access: string): void => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, access);
+  },
+
+  clearTokens: (): void => {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  },
+
+  hasAccessToken: (): boolean => {
+    return !!localStorage.getItem(ACCESS_TOKEN_KEY);
+  },
+};
+
+export default tokenStorage;

@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import authService from '../services/authService';
-import { LoginCredentials, RegisterCredentials, UserProfile } from '../types/user';
+import { FormFieldErrors, LoginCredentials, RegisterCredentials, UserProfile } from '../types/user';
+import parseApiError from '../utils/errorHandler';
 import tokenStorage from '../utils/tokenStorage';
 
 export interface AuthContextType {
@@ -8,8 +9,9 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  fieldErrors: FormFieldErrors;
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
   refreshProfile: () => Promise<void>;
@@ -21,6 +23,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
+
+  const clearError = useCallback(() => {
+    setError(null);
+    setFieldErrors({});
+  }, []);
 
   const refreshProfile = useCallback(async () => {
     try {
@@ -30,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUser(null);
       }
-    } catch (err: unknown) {
+    } catch {
       tokenStorage.clearTokens();
       setUser(null);
     }
@@ -41,6 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       if (tokenStorage.hasAccessToken()) {
         await refreshProfile();
+      } else {
+        setUser(null);
       }
       setIsLoading(false);
     };
@@ -51,35 +61,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: LoginCredentials) => {
     try {
       setIsLoading(true);
-      setError(null);
+      clearError();
       const tokens = await authService.login(credentials);
       tokenStorage.setTokens(tokens.access, tokens.refresh);
       await refreshProfile();
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { detail?: string; message?: string } } })?.response?.data?.detail ||
-                      (err as { response?: { data?: { detail?: string; message?: string } } })?.response?.data?.message ||
-                      'Invalid username or password';
-      setError(message);
-      throw new Error(message);
+      const parsed = parseApiError(err, 'Invalid username or password.');
+      setError(parsed.message);
+      setFieldErrors(parsed.fieldErrors);
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (credentials: RegisterCredentials) => {
+  const register = async (credentials: RegisterCredentials): Promise<boolean> => {
+    let autoLoggedIn = false;
     try {
       setIsLoading(true);
-      setError(null);
+      clearError();
       await authService.register(credentials);
-      // Auto-login upon successful registration if password is provided
-      if (credentials.password) {
-        await login({ username: credentials.username, password: credentials.password });
+      
+      // Attempt auto-login after registration
+      if (credentials.username && credentials.password) {
+        try {
+          const tokens = await authService.login({
+            username: credentials.username,
+            password: credentials.password,
+          });
+          tokenStorage.setTokens(tokens.access, tokens.refresh);
+          await refreshProfile();
+          autoLoggedIn = true;
+        } catch {
+          // If auto-login fails, user can still log in manually on /login
+          autoLoggedIn = false;
+        }
       }
+      return autoLoggedIn;
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { detail?: string; message?: string } } })?.response?.data?.detail ||
-                      'Registration failed. Please check your details.';
-      setError(message);
-      throw new Error(message);
+      const parsed = parseApiError(err, 'Registration failed. Please check your details.');
+      setError(parsed.message);
+      setFieldErrors(parsed.fieldErrors);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -92,15 +115,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         await authService.logout(refreshToken);
       } catch {
-        // Suppress logout API failures and clear state locally
+        // Suppress API errors on logout to ensure local cleanup always succeeds
       }
     }
     tokenStorage.clearTokens();
     setUser(null);
+    clearError();
     setIsLoading(false);
   };
-
-  const clearError = () => setError(null);
 
   return (
     <AuthContext.Provider
@@ -109,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         error,
+        fieldErrors,
         login,
         register,
         logout,

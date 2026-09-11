@@ -11,9 +11,13 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Handle complete session logout and token revocation
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+    } finally {
+      navigate('/login', { replace: true });
+    }
   };
 
   return (

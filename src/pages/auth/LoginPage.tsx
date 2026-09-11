@@ -84,17 +84,18 @@ export const LoginPage: React.FC = () => {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4 font-sans" noValidate aria-label="Login form">
         <Input
           label="Username or Email"
           type="text"
-          placeholder="Enter username"
+          placeholder="Enter your username"
           value={username}
           onChange={(e) => handleInputChange('username', e.target.value)}
-          leftIcon={<User className="w-4 h-4" />}
+          leftIcon={<User className="w-4 h-4 text-emerald-400/80" />}
           error={usernameError}
           disabled={isSubmitting}
           autoComplete="username"
+          aria-required="true"
           required
         />
 

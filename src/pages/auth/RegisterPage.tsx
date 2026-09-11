@@ -96,7 +96,7 @@ export const RegisterPage: React.FC = () => {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-3.5 font-sans" noValidate aria-label="Registration form">
         <div className="grid grid-cols-2 gap-3">
           <Input
             label="First Name"

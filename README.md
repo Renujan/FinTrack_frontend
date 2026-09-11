@@ -146,3 +146,12 @@ This repository strictly follows structured conventional commits:
 - `chore`: Infrastructure, dependencies, or tooling configuration
 - `feat`: Application feature foundations & module implementations
 - `docs`: Documentation updates
+
+---
+
+## 🏁 Day 30 Status
+- **Authentication Services**: Implemented centralized `authService` for login, registration, logout, profile fetching.
+- **Form Validation**: Client-side validation for required fields, email syntax, password rules, confirmation matching.
+- **Persistence & Security**: JWT token management with secure storage and automatic refresh interceptor.
+- **Route Guarding**: Protected route handling with `ProtectedRoute` and `AuthLayout` redirects.
+- **UI Polish**: Fully responsive FinTrack branded Login and Register views.

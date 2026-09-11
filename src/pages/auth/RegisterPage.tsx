@@ -41,10 +41,11 @@ export const RegisterPage: React.FC = () => {
     }
   };
 
+  // Submit user details to Registration API endpoint
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Client-side validation
+    // Client-side form validation check
     const validationErrors = validateRegisterForm(formData);
     if (Object.keys(validationErrors).length > 0) {
       setClientErrors(validationErrors);
@@ -55,6 +56,7 @@ export const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Execute registration API request & evaluate authentication response
       const autoLoggedIn = await register(formData);
       if (autoLoggedIn) {
         addToast('Account created & logged in successfully!', 'success', 'Welcome aboard');
@@ -64,7 +66,7 @@ export const RegisterPage: React.FC = () => {
         navigate('/login', { replace: true });
       }
     } catch {
-      // Backend error handled by AuthContext
+      // Backend registration errors parsed & displayed via AuthContext state
     } finally {
       setIsSubmitting(false);
     }

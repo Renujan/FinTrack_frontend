@@ -36,6 +36,7 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  // Submit credentials to Login API endpoint
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -50,11 +51,12 @@ export const LoginPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Execute authentication login API service request
       await login({ username: username.trim(), password });
       addToast('Welcome back to FinTrack!', 'success', 'Login Successful');
       navigate(from, { replace: true });
     } catch {
-      // API error handled by AuthContext
+      // API authentication errors caught and handled via AuthContext state
     } finally {
       setIsSubmitting(false);
     }

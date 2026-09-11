@@ -1,0 +1,91 @@
+import { FormFieldErrors, RegisterCredentials } from '../types/user';
+
+/**
+ * Client-side Form Validation Utilities
+ */
+
+export const validateEmail = (email: string): string | null => {
+  if (!email || !email.trim()) {
+    return 'Email address is required.';
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    return 'Please enter a valid email address.';
+  }
+  return null;
+};
+
+export const validateUsername = (username: string): string | null => {
+  if (!username || !username.trim()) {
+    return 'Username is required.';
+  }
+  if (username.trim().length < 3) {
+    return 'Username must be at least 3 characters long.';
+  }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(username.trim())) {
+    return 'Username can only contain letters, numbers, underscores, dots, and hyphens.';
+  }
+  return null;
+};
+
+export const validatePassword = (password: string): string | null => {
+  if (!password) {
+    return 'Password is required.';
+  }
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters long.';
+  }
+  return null;
+};
+
+export const validatePasswordConfirm = (password: string, confirm: string): string | null => {
+  if (!confirm) {
+    return 'Please confirm your password.';
+  }
+  if (password !== confirm) {
+    return 'Passwords do not match.';
+  }
+  return null;
+};
+
+export const validateLoginForm = (username: string, password: string): FormFieldErrors => {
+  const errors: FormFieldErrors = {};
+
+  const usernameError = validateUsername(username);
+  if (usernameError) {
+    errors.username = usernameError;
+  }
+
+  const passwordError = validatePassword(password);
+  if (passwordError) {
+    errors.password = passwordError;
+  }
+
+  return errors;
+};
+
+export const validateRegisterForm = (data: RegisterCredentials): FormFieldErrors => {
+  const errors: FormFieldErrors = {};
+
+  const usernameError = validateUsername(data.username);
+  if (usernameError) {
+    errors.username = usernameError;
+  }
+
+  const emailError = validateEmail(data.email);
+  if (emailError) {
+    errors.email = emailError;
+  }
+
+  const passwordError = validatePassword(data.password);
+  if (passwordError) {
+    errors.password = passwordError;
+  }
+
+  const confirmError = validatePasswordConfirm(data.password, data.password_confirm);
+  if (confirmError) {
+    errors.password_confirm = confirmError;
+  }
+
+  return errors;
+};

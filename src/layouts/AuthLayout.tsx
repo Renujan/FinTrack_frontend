@@ -1,8 +1,27 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { TrendingUp } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4">
+        <LoadingSpinner size="lg" />
+        <p className="mt-4 text-xs text-slate-400 font-medium tracking-wide">
+          Verifying session...
+        </p>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
       {/* Background Decorative Gradients */}

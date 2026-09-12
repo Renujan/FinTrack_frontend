@@ -1,166 +1,151 @@
-import React from 'react';
-import PageHeader from '../../components/common/PageHeader';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
-import { ArrowUpRight, ArrowDownRight, Wallet, PieChart, Plus, TrendingUp, Calendar } from 'lucide-react';
-import useAuth from '../../hooks/useAuth';
+import React, { useState, useEffect, useCallback } from 'react';
+import DashboardHeader from '../../components/dashboard/DashboardHeader';
+import FinancialSummaryCards from '../../components/dashboard/FinancialSummaryCards';
+import IncomeExpenseOverview from '../../components/dashboard/IncomeExpenseOverview';
+import BalanceSavingsOverview from '../../components/dashboard/BalanceSavingsOverview';
+import RecentTransactionsWidget from '../../components/dashboard/RecentTransactionsWidget';
+import BudgetOverviewWidget from '../../components/dashboard/BudgetOverviewWidget';
+import GoalsOverviewWidget from '../../components/dashboard/GoalsOverviewWidget';
+import SpendingAnalyticsWidget from '../../components/dashboard/SpendingAnalyticsWidget';
+import DashboardSkeleton from '../../components/dashboard/DashboardSkeleton';
+import DashboardErrorState from '../../components/dashboard/DashboardErrorState';
+import dashboardService from '../../services/dashboardService';
+import { DashboardData } from '../../types/dashboard';
+import { parseApiError } from '../../utils/errorHandler';
+import { AlertTriangle, Info, AlertCircle } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [periodFilter, setPeriodFilter] = useState<'month' | 'all'>('month');
+
+  const fetchDashboardData = useCallback(async (isManualRefresh = false) => {
+    if (isManualRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      let params: { start_date?: string; end_date?: string } = {};
+
+      if (periodFilter === 'month') {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        params.start_date = startOfMonth.toISOString().split('T')[0];
+        params.end_date = now.toISOString().split('T')[0];
+      }
+
+      const result = await dashboardService.getDashboardOverview(params);
+      setData(result);
+    } catch (err: unknown) {
+      const parsedErr = parseApiError(err);
+      setError(parsedErr.message);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [periodFilter]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const handlePeriodChange = (filter: 'month' | 'all') => {
+    setPeriodFilter(filter);
+  };
 
   return (
-    <div>
-      <PageHeader
-        title="Financial Overview"
-        subtitle={`Welcome back, ${user?.first_name || user?.username || 'User'}. Here is your financial summary.`}
-        action={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" leftIcon={<Calendar className="w-4 h-4" />}>
-              This Month
-            </Button>
-            <Button variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
-              Add Transaction
-            </Button>
-          </div>
-        }
+    <div className="space-y-6">
+      {/* Header section with greetings & date filter */}
+      <DashboardHeader
+        onRefresh={() => fetchDashboardData(true)}
+        isRefreshing={isRefreshing}
+        periodFilter={periodFilter}
+        onPeriodChange={handlePeriodChange}
       />
 
-      {/* Metrics Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium">Total Balance</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-              <Wallet className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-slate-100 font-outfit mt-2">$24,850.00</p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-400">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>+12.4% vs last month</span>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium">Monthly Income</span>
-            <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-slate-100 font-outfit mt-2">$8,450.00</p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-400">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>+5.2% target met</span>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium">Monthly Expense</span>
-            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400">
-              <ArrowDownRight className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-slate-100 font-outfit mt-2">$3,120.50</p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-400">
-            <span>68% of budget limit</span>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium">Active Savings Rate</span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-              <PieChart className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-slate-100 font-outfit mt-2">63.1%</p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-400">
-            <Badge variant="success" size="sm">Optimal</Badge>
-          </div>
-        </Card>
-      </div>
-
-      {/* Main Content Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity Table Placeholder */}
-        <Card className="lg:col-span-2" title="Recent Transactions" subtitle="Your latest financial entries">
-          <div className="space-y-3">
-            {[
-              { title: 'Tech Corp Salary', type: 'INCOME', amount: '+$5,200.00', category: 'Salary', date: 'Today, 2:30 PM' },
-              { title: 'Whole Foods Market', type: 'EXPENSE', amount: '-$142.80', category: 'Groceries', date: 'Yesterday' },
-              { title: 'Cloud Infrastructure Subscription', type: 'EXPENSE', amount: '-$49.00', category: 'Software', date: 'Sep 08, 2026' },
-              { title: 'Freelance Design Contract', type: 'INCOME', amount: '+$1,250.00', category: 'Side Hustle', date: 'Sep 06, 2026' },
-            ].map((tx, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-slate-800/80">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${tx.type === 'INCOME' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                    {tx.type === 'INCOME' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-200">{tx.title}</p>
-                    <p className="text-[11px] text-slate-400">{tx.category} &bull; {tx.date}</p>
-                  </div>
-                </div>
-                <span className={`text-xs font-bold ${tx.type === 'INCOME' ? 'text-emerald-400' : 'text-slate-200'}`}>
-                  {tx.amount}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Quick Goal & Budget Widget Placeholder */}
+      {/* Main Content Render */}
+      {loading ? (
+        <DashboardSkeleton />
+      ) : error && !data ? (
+        <DashboardErrorState message={error} onRetry={() => fetchDashboardData()} />
+      ) : (
         <div className="space-y-6">
-          <Card title="Budget Health" subtitle="Current month utilization">
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Housing & Rent</span>
-                  <span className="text-slate-400">$1,500 / $1,500</span>
+          {/* Active Alerts Banner if present */}
+          {data?.alerts && data.alerts.length > 0 && (
+            <div className="space-y-2">
+              {data.alerts.slice(0, 2).map((alert, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
+                    alert.severity === 'error' || alert.severity === 'danger'
+                      ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      : alert.severity === 'warning'
+                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                      : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {alert.severity === 'warning' ? (
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                    ) : alert.severity === 'error' ? (
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                    ) : (
+                      <Info className="w-4 h-4 shrink-0" />
+                    )}
+                    <span>{alert.message}</span>
+                  </div>
                 </div>
-                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                  <div className="h-full bg-emerald-400 w-full" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Food & Dining</span>
-                  <span className="text-slate-400">$450 / $600</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                  <div className="h-full bg-teal-400 w-[75%]" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Entertainment</span>
-                  <span className="text-slate-400">$210 / $200</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                  <div className="h-full bg-rose-500 w-full" />
-                </div>
-              </div>
+              ))}
             </div>
-          </Card>
+          )}
 
-          <Card title="Goal Progress" subtitle="Emergency Fund Goal">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Target: $10,000.00</p>
-                <p className="text-lg font-bold text-slate-100">$7,500.00 (75%)</p>
-              </div>
+          {/* Key Summary Cards */}
+          <FinancialSummaryCards
+            summary={data?.financial_summary}
+            overview={data?.income_expense_overview}
+          />
+
+          {/* Income vs Expenses Overview & Balance Savings Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <IncomeExpenseOverview
+                overview={data?.income_expense_overview}
+                cashFlow={data?.cash_flow_summary}
+              />
             </div>
-          </Card>
+            <div>
+              <BalanceSavingsOverview
+                balanceSummary={data?.balance_summary}
+                summary={data?.financial_summary}
+              />
+            </div>
+          </div>
+
+          {/* Recent Transactions & Budget Overview */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <RecentTransactionsWidget transactions={data?.recent_transactions} />
+            </div>
+            <div>
+              <BudgetOverviewWidget budgetOverview={data?.budget_overview} />
+            </div>
+          </div>
+
+          {/* Goals & Spending Analytics Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <GoalsOverviewWidget goalOverview={data?.goal_overview} />
+            <SpendingAnalyticsWidget
+              topCategories={data?.top_categories}
+              insights={data?.spending_insights}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

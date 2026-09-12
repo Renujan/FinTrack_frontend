@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import DashboardHeader from '../../components/dashboard/DashboardHeader';
-import FinancialSummaryCards from '../../components/dashboard/FinancialSummaryCards';
-import IncomeExpenseOverview from '../../components/dashboard/IncomeExpenseOverview';
-import BalanceSavingsOverview from '../../components/dashboard/BalanceSavingsOverview';
-import RecentTransactionsWidget from '../../components/dashboard/RecentTransactionsWidget';
-import BudgetOverviewWidget from '../../components/dashboard/BudgetOverviewWidget';
-import GoalsOverviewWidget from '../../components/dashboard/GoalsOverviewWidget';
-import SpendingAnalyticsWidget from '../../components/dashboard/SpendingAnalyticsWidget';
-import DashboardSkeleton from '../../components/dashboard/DashboardSkeleton';
-import DashboardErrorState from '../../components/dashboard/DashboardErrorState';
+import {
+  DashboardHeader,
+  FinancialSummaryCards,
+  IncomeExpenseOverview,
+  BalanceSavingsOverview,
+  RecentTransactionsWidget,
+  BudgetOverviewWidget,
+  GoalsOverviewWidget,
+  SpendingAnalyticsWidget,
+  DashboardSkeleton,
+  DashboardErrorState,
+} from '../../components/dashboard';
 import dashboardService from '../../services/dashboardService';
 import { DashboardData } from '../../types/dashboard';
 import { parseApiError } from '../../utils/errorHandler';

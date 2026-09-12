@@ -5,3 +5,5 @@ export * from './budgetService';
 export * from './goalService';
 export * from './recurringService';
 export * from './analyticsService';
+export * from './dashboardService';
+

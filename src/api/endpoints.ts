@@ -42,6 +42,15 @@ export const ENDPOINTS = {
     COMPARISON: '/analytics/comparison/',
     BUDGETS: '/analytics/budgets/',
   },
+  DASHBOARD: {
+    OVERVIEW: '/dashboard/',
+    SUMMARY: '/dashboard/summary/',
+    RECENT_TRANSACTIONS: '/dashboard/recent-transactions/',
+    BUDGETS: '/dashboard/budgets/',
+    GOALS: '/dashboard/goals/',
+    INSIGHTS: '/dashboard/insights/',
+    ALERTS: '/dashboard/alerts/',
+  },
   NOTIFICATIONS: {
     LIST: '/notifications/',
     MARK_READ: (id: number | string) => `/notifications/${id}/read/`,

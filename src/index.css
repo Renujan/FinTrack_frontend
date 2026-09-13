@@ -71,3 +71,7 @@ body {
 }
 
 /* Base utility overrides if needed */
+.transaction-table-row {
+  transition: background-color 0.15s ease-in-out;
+}
+

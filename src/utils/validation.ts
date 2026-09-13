@@ -89,3 +89,22 @@ export const validateRegisterForm = (data: RegisterCredentials): FormFieldErrors
 
   return errors;
 };
+
+export const validateTransactionForm = (description: string, amount: number | string, category: number | string | null, date: string): FormFieldErrors => {
+  const errors: FormFieldErrors = {};
+  if (!description || !description.trim()) {
+    errors.description = 'Description is required.';
+  }
+  const numericAmount = typeof amount === 'number' ? amount : parseFloat(amount);
+  if (!amount || isNaN(numericAmount) || numericAmount <= 0) {
+    errors.amount = 'Amount must be greater than zero.';
+  }
+  if (!category) {
+    errors.category = 'Category is required.';
+  }
+  if (!date) {
+    errors.date = 'Date is required.';
+  }
+  return errors;
+};
+

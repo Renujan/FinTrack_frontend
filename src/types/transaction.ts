@@ -7,24 +7,19 @@ export type TransactionType = 'INCOME' | 'EXPENSE';
 export interface Category {
   id: number;
   name: string;
-  type: TransactionType;
-  icon?: string;
-  color?: string;
-  is_default?: boolean;
   user?: number | null;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface Transaction {
   id: number;
-  title: string;
-  amount: number | string;
-  transaction_type: TransactionType;
-  category: number | Category;
+  category: number | null;
   category_name?: string;
+  transaction_type: TransactionType;
+  amount: number | string;
+  description: string;
   date: string;
-  notes?: string;
-  receipt_url?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -33,11 +28,21 @@ export interface TransactionFilters {
   page?: number;
   page_size?: number;
   search?: string;
-  category?: number;
-  transaction_type?: TransactionType;
+  type?: TransactionType;
+  category?: string | number;
+  date?: string;
   start_date?: string;
   end_date?: string;
-  min_amount?: number;
-  max_amount?: number;
+  min_amount?: number | string;
+  max_amount?: number | string;
   ordering?: string;
 }
+
+export interface TransactionFormData {
+  category: number | string | null;
+  transaction_type: TransactionType;
+  amount: number | string;
+  description: string;
+  date: string;
+}
+

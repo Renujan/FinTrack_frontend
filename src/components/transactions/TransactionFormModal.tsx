@@ -41,6 +41,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
 
+  // Synchronize form state on initial load or editing target transaction change
   useEffect(() => {
     if (initialData) {
       setFormData({

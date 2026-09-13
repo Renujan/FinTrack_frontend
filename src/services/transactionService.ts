@@ -1,12 +1,21 @@
 import apiClient from '../api/client';
 import ENDPOINTS from '../api/endpoints';
 import { PaginatedResponse } from '../types/common';
-import { Transaction, TransactionFilters } from '../types/transaction';
+import { Transaction, TransactionFilters, TransactionFormData } from '../types/transaction';
 
 export const transactionService = {
   getTransactions: async (filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> => {
+    const cleanParams: Record<string, unknown> = {};
+    if (filters) {
+      Object.entries(filters).forEach(([key, val]) => {
+        if (val !== undefined && val !== null && val !== '') {
+          cleanParams[key] = val;
+        }
+      });
+    }
+
     const response = await apiClient.get<PaginatedResponse<Transaction>>(ENDPOINTS.TRANSACTIONS.LIST_CREATE, {
-      params: filters,
+      params: cleanParams,
     });
     return response.data;
   },
@@ -16,12 +25,12 @@ export const transactionService = {
     return response.data;
   },
 
-  createTransaction: async (data: Partial<Transaction>): Promise<Transaction> => {
+  createTransaction: async (data: TransactionFormData): Promise<Transaction> => {
     const response = await apiClient.post<Transaction>(ENDPOINTS.TRANSACTIONS.LIST_CREATE, data);
     return response.data;
   },
 
-  updateTransaction: async (id: number | string, data: Partial<Transaction>): Promise<Transaction> => {
+  updateTransaction: async (id: number | string, data: Partial<TransactionFormData>): Promise<Transaction> => {
     const response = await apiClient.patch<Transaction>(ENDPOINTS.TRANSACTIONS.DETAIL(id), data);
     return response.data;
   },
@@ -32,3 +41,4 @@ export const transactionService = {
 };
 
 export default transactionService;
+

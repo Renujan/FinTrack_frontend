@@ -1,3 +1,7 @@
+/**
+ * CategoriesPage - FinTrack Day 33 Categories Management & Backend Integration
+ * Full CRUD, search, filtering, statistics, responsive design, and error handling.
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/ui/Button';

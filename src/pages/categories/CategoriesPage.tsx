@@ -114,7 +114,7 @@ export const CategoriesPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 transition-all duration-300">
       <PageHeader
         title="Category Management"
         subtitle="Organize your income sources and expense categories connected directly to your transactions."

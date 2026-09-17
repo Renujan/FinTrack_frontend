@@ -1,3 +1,6 @@
+/**
+ * Modal form for creating new budgets and editing existing budgets with DRF payload validation.
+ */
 import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';

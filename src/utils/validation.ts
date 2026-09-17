@@ -108,3 +108,30 @@ export const validateTransactionForm = (description: string, amount: number | st
   return errors;
 };
 
+export const validateBudgetForm = (name: string, amount: number | string, start_date: string, end_date: string): FormFieldErrors => {
+  const errors: FormFieldErrors = {};
+  if (!name || !name.trim()) {
+    errors.name = 'Budget name is required.';
+  } else if (name.trim().length > 100) {
+    errors.name = 'Budget name cannot exceed 100 characters.';
+  }
+
+  const numericAmount = typeof amount === 'number' ? amount : parseFloat(amount);
+  if (!amount || isNaN(numericAmount) || numericAmount <= 0) {
+    errors.amount = 'Amount must be greater than zero.';
+  }
+
+  if (!start_date) {
+    errors.start_date = 'Start date is required.';
+  }
+  if (!end_date) {
+    errors.end_date = 'End date is required.';
+  }
+  if (start_date && end_date && end_date < start_date) {
+    errors.end_date = 'End date cannot be before start date.';
+  }
+
+  return errors;
+};
+
+

@@ -33,6 +33,8 @@ export const ENDPOINTS = {
     DETAIL: (id: number | string) => `/recurring-transactions/${id}/`,
     PAUSE: (id: number | string) => `/recurring-transactions/${id}/pause/`,
     RESUME: (id: number | string) => `/recurring-transactions/${id}/resume/`,
+    EXECUTE: (id: number | string) => `/recurring-transactions/${id}/execute/`,
+    HISTORY: (id: number | string) => `/recurring-transactions/${id}/history/`,
   },
   ANALYTICS: {
     SUMMARY: '/analytics/summary/',

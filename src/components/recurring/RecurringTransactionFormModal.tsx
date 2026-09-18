@@ -109,6 +109,14 @@ export const RecurringTransactionFormModal: React.FC<RecurringTransactionFormMod
       errs.end_date = 'End date cannot be before start date.';
     }
 
+    if (startDate && nextRunDate && nextRunDate < startDate) {
+      errs.next_run_date = 'Next run date cannot be before start date.';
+    }
+
+    if (endDate && nextRunDate && nextRunDate > endDate) {
+      errs.next_run_date = 'Next run date cannot be after end date.';
+    }
+
     setLocalErrors(errs);
     return Object.keys(errs).length === 0;
   };

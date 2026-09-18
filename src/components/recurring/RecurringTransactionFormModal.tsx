@@ -18,6 +18,9 @@ interface RecurringTransactionFormModalProps {
   fieldErrors?: Record<string, string>;
 }
 
+/**
+ * Recurring Transaction Form Modal for Creation & Editing
+ */
 export const RecurringTransactionFormModal: React.FC<RecurringTransactionFormModalProps> = ({
   isOpen,
   onClose,

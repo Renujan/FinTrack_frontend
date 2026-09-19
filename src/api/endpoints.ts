@@ -25,8 +25,15 @@ export const ENDPOINTS = {
   GOALS: {
     LIST_CREATE: '/goals/',
     DETAIL: (id: number | string) => `/goals/${id}/`,
+    SUMMARY: '/goals/summary/',
+    CONTRIBUTIONS: (id: number | string) => `/goals/${id}/contributions/`,
+    CONTRIBUTION_DETAIL: (goalId: number | string, id: number | string) =>
+      `/goals/${goalId}/contributions/${id}/`,
+    COMPLETE: (id: number | string) => `/goals/${id}/complete/`,
     PAUSE: (id: number | string) => `/goals/${id}/pause/`,
     RESUME: (id: number | string) => `/goals/${id}/resume/`,
+    CANCEL: (id: number | string) => `/goals/${id}/cancel/`,
+    PROGRESS: (id: number | string) => `/goals/${id}/progress/`,
   },
   RECURRING: {
     LIST_CREATE: '/recurring-transactions/',
@@ -38,9 +45,12 @@ export const ENDPOINTS = {
   },
   ANALYTICS: {
     SUMMARY: '/analytics/summary/',
-    TRENDS: '/analytics/trends/',
-    MONTHLY: '/analytics/monthly/',
+    INCOME_EXPENSES: '/analytics/income-expenses/',
     CATEGORIES: '/analytics/categories/',
+    INCOME_CATEGORIES: '/analytics/income-categories/',
+    DAILY: '/analytics/daily/',
+    MONTHLY: '/analytics/monthly/',
+    TRENDS: '/analytics/trends/',
     COMPARISON: '/analytics/comparison/',
     BUDGETS: '/analytics/budgets/',
   },

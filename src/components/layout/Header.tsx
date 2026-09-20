@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Bell, Search, LogOut, User as UserIcon } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import notificationService from '../../services/notificationService';
 
 export interface HeaderProps {
   onToggleMobileSidebar: () => void;
@@ -10,6 +11,21 @@ export interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const summary = await notificationService.getSummary();
+        setUnreadCount(summary.unread_count || 0);
+      } catch (err) {
+        // Silent fallback for notification summary
+      }
+    };
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000); // Polling every 30s
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle complete session logout and token revocation
   const handleLogout = async () => {
@@ -50,14 +66,22 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
           title="Notifications"
         >
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-4 px-1 rounded-full bg-emerald-500 text-[10px] font-bold text-slate-950 flex items-center justify-center ring-2 ring-slate-900">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
 
         <div className="h-6 w-px bg-slate-800" />
 
         {/* User Info & Logout */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => navigate('/settings')}
+            className="flex items-center gap-2.5 hover:opacity-80 transition text-left"
+            title="Account Settings"
+          >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-slate-950 font-bold text-xs ring-2 ring-emerald-500/20">
               {user?.username ? user.username.charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
             </div>
@@ -67,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
               </p>
               <p className="text-[10px] text-slate-400 leading-tight">{user?.email || 'authenticated'}</p>
             </div>
-          </div>
+          </button>
 
           <button
             onClick={handleLogout}

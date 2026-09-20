@@ -1,61 +1,122 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PageHeader from '../../components/common/PageHeader';
-import Card from '../../components/ui/Card';
-import useAuth from '../../hooks/useAuth';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import { Settings, User, Shield, DollarSign } from 'lucide-react';
+import ProfileSettingsForm from '../../components/settings/ProfileSettingsForm';
+import FinancialPreferencesForm from '../../components/settings/FinancialPreferencesForm';
+import NotificationPreferencesForm from '../../components/settings/NotificationPreferencesForm';
+import SecuritySettingsForm from '../../components/settings/SecuritySettingsForm';
+import settingsService from '../../services/settingsService';
+import { UserProfile, UserPreference, ChangePasswordPayload } from '../../types/settings';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { User, DollarSign, Bell, Shield } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
-  const { user } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [preferences, setPreferences] = useState<UserPreference | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<'profile' | 'financial' | 'notifications' | 'security'>(
+    'profile'
+  );
+
+  const fetchSettings = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [profData, prefData] = await Promise.all([
+        settingsService.getProfile(),
+        settingsService.getPreferences(),
+      ]);
+      setProfile(profData);
+      setPreferences(prefData);
+    } catch (err) {
+      console.error('Failed to load user settings', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  const handleUpdateProfile = async (data: Partial<UserProfile>) => {
+    const updated = await settingsService.updateProfile(data);
+    setProfile(updated);
+  };
+
+  const handleUpdatePreferences = async (data: Partial<UserPreference>) => {
+    const updated = await settingsService.updatePreferences(data);
+    setPreferences(updated);
+  };
+
+  const handleChangePassword = async (payload: ChangePasswordPayload) => {
+    await settingsService.changePassword(payload);
+  };
+
+  const handleResetSettings = async () => {
+    await settingsService.resetSettings();
+    await fetchSettings();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <LoadingSpinner size="lg" label="Loading account settings..." />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Account & System Settings"
-        subtitle="Manage user preferences, default currency, security, and profile details."
+        subtitle="Manage personal profile details, default currency, notification triggers, and security controls."
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2" title="User Profile Details" subtitle="Update your personal identification information">
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="First Name" defaultValue={user?.first_name || ''} />
-              <Input label="Last Name" defaultValue={user?.last_name || ''} />
-            </div>
+      {/* Settings Navigation Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
+        {[
+          { id: 'profile', label: 'User Profile', icon: User },
+          { id: 'financial', label: 'Financial Defaults', icon: DollarSign },
+          { id: 'notifications', label: 'Alert Preferences', icon: Bell },
+          { id: 'security', label: 'Security & Password', icon: Shield },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-            <Input label="Username" defaultValue={user?.username || ''} disabled helperText="Username cannot be changed." />
-            <Input label="Email Address" defaultValue={user?.email || ''} leftIcon={<User className="w-4 h-4" />} />
+      {/* Tab Content Render */}
+      <div className="max-w-4xl">
+        {activeTab === 'profile' && profile && (
+          <ProfileSettingsForm profile={profile} onSave={handleUpdateProfile} />
+        )}
 
-            <Button variant="primary" size="sm" className="mt-2">
-              Save Changes
-            </Button>
-          </form>
-        </Card>
+        {activeTab === 'financial' && (
+          <FinancialPreferencesForm preferences={preferences} onSave={handleUpdatePreferences} />
+        )}
 
-        <div className="space-y-6">
-          <Card title="Preferences" subtitle="Regional & Currency">
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block text-slate-300 font-medium mb-1">Base Currency</label>
-                <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-200">
-                  <DollarSign className="w-4 h-4 text-emerald-400" />
-                  <span>{user?.currency || 'USD'} — United States Dollar</span>
-                </div>
-              </div>
-            </div>
-          </Card>
+        {activeTab === 'notifications' && (
+          <NotificationPreferencesForm preferences={preferences} onSave={handleUpdatePreferences} />
+        )}
 
-          <Card title="Security" subtitle="Authentication Status">
-            <div className="flex items-center gap-3 text-xs text-slate-300">
-              <Shield className="w-5 h-5 text-emerald-400 shrink-0" />
-              <div>
-                <p className="font-semibold text-slate-200">JWT Token Security</p>
-                <p className="text-slate-400">Stateless bearer token authentication enabled</p>
-              </div>
-            </div>
-          </Card>
-        </div>
+        {activeTab === 'security' && (
+          <SecuritySettingsForm
+            onChangePassword={handleChangePassword}
+            onResetSettings={handleResetSettings}
+          />
+        )}
       </div>
     </div>
   );

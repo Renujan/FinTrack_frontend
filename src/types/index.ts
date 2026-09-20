@@ -7,4 +7,11 @@ export * from './recurring';
 export * from './analytics';
 export * from './dashboard';
 export * from './common';
-
+export * from './report';
+export * from './notification';
+export * from './settings';
+export * from './import';
+export * from './export';
+export * from './backup';
+export * from './subscription';
+export * from './audit';

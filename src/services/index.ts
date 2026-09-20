@@ -6,4 +6,11 @@ export * from './goalService';
 export * from './recurringService';
 export * from './analyticsService';
 export * from './dashboardService';
-
+export * from './reportService';
+export * from './notificationService';
+export * from './settingsService';
+export * from './importService';
+export * from './exportService';
+export * from './backupService';
+export * from './subscriptionService';
+export * from './auditService';

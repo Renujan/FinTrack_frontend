@@ -9,6 +9,7 @@ import TransactionList from '../../components/transactions/TransactionList';
 import TransactionFormModal from '../../components/transactions/TransactionFormModal';
 import TransactionDetailsModal from '../../components/transactions/TransactionDetailsModal';
 import TransactionDeleteModal from '../../components/transactions/TransactionDeleteModal';
+import CsvImportModal from '../../components/imports/CsvImportModal';
 import transactionService from '../../services/transactionService';
 import categoryService from '../../services/categoryService';
 import useAuth from '../../hooks/useAuth';
@@ -47,6 +48,7 @@ export const TransactionsPage: React.FC = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
 
+  const [isImportOpen, setIsImportOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -238,6 +240,14 @@ export const TransactionsPage: React.FC = () => {
               Refresh
             </Button>
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsImportOpen(true)}
+              className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+            >
+              Import CSV
+            </Button>
+            <Button
               variant="primary"
               size="sm"
               onClick={handleOpenCreateModal}
@@ -327,6 +337,16 @@ export const TransactionsPage: React.FC = () => {
         isLoading={isSubmitting}
         error={formError}
         currency={userCurrency}
+      />
+
+      {/* CSV Import Modal */}
+      <CsvImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onSuccess={() => {
+          setIsImportOpen(false);
+          fetchTransactions();
+        }}
       />
     </div>
   );

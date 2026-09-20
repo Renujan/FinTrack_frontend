@@ -15,12 +15,14 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   Calendar,
+  History,
 } from 'lucide-react';
 
 interface RecurringTransactionCardProps {
   transaction: RecurringTransaction;
   currency?: string;
   onViewDetails: (item: RecurringTransaction) => void;
+  onViewHistory?: (item: RecurringTransaction) => void;
   onEdit: (item: RecurringTransaction) => void;
   onToggleStatus: (item: RecurringTransaction) => void;
   onExecute: (item: RecurringTransaction) => void;
@@ -32,6 +34,7 @@ export const RecurringTransactionCard: React.FC<RecurringTransactionCardProps> =
   transaction,
   currency = 'USD',
   onViewDetails,
+  onViewHistory,
   onEdit,
   onToggleStatus,
   onExecute,
@@ -133,6 +136,20 @@ export const RecurringTransactionCard: React.FC<RecurringTransactionCardProps> =
             <Eye className="w-4 h-4" />
             <span className="sr-only">View</span>
           </Button>
+
+          {/* History Modal */}
+          {onViewHistory && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onViewHistory(transaction)}
+              title="Execution History"
+              className="text-slate-400 hover:text-cyan-400"
+            >
+              <History className="w-4 h-4" />
+              <span className="sr-only">History</span>
+            </Button>
+          )}
 
           {/* Edit Modal */}
           <Button

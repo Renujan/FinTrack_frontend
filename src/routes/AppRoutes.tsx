@@ -1,10 +1,11 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import AppLayout from '../layouts/AppLayout';
 import AuthLayout from '../layouts/AuthLayout';
 
 // Pages
+import LandingPage from '../pages/landing/LandingPage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
@@ -22,8 +23,9 @@ import NotFoundPage from '../pages/NotFoundPage';
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Root redirect to Dashboard */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* Public Landing Page */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/landing" element={<LandingPage />} />
 
       {/* Public Authentication Routes */}
       <Route element={<AuthLayout />}>

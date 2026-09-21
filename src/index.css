@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -13,10 +11,14 @@
   }
 
   body {
-    @apply bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-300 min-h-screen antialiased;
+    background-color: #020617;
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(20, 184, 166, 0.07) 0px, transparent 50%),
       radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
     background-attachment: fixed;
   }
@@ -26,44 +28,58 @@
   }
 }
 
-@layer utilities {
-  .glass-panel {
-    @apply bg-slate-900/70 backdrop-blur-xl border border-slate-800/80 shadow-2xl;
-  }
-  
-  .glass-card {
-    @apply bg-slate-900/60 backdrop-blur-md border border-slate-800/70 hover:border-slate-700/80 transition-all duration-300;
-  }
-
-  .glass-input {
-    @apply bg-slate-950/60 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-xl transition-all duration-200 text-slate-100 placeholder:text-slate-500 outline-none;
-  }
-
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400;
-  }
-
-  .gradient-text-alt {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-300 via-indigo-300 to-violet-400;
-  }
-
-  .gradient-border {
-    position: relative;
-    border-radius: 0.75rem;
-    background: linear-gradient(135deg, rgba(16,185,129,0.3) 0%, rgba(20,184,166,0.1) 50%, rgba(30,41,59,0.4) 100%);
-    padding: 1px;
-  }
-
-  .gradient-border-content {
-    @apply bg-slate-900/90 rounded-[11px] h-full w-full;
-  }
-
-  .glow-accent {
-    box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.25);
-  }
+.glass-panel {
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-/* Custom Scrollbars */
+.glass-card {
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 41, 59, 0.7);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(51, 65, 85, 0.8);
+}
+
+.glass-input {
+  background-color: rgba(2, 6, 23, 0.7);
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  color: #f8fafc;
+  outline: none;
+}
+.glass-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5);
+}
+
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #34d399, #5eead4, #22d3ee);
+}
+
+.gradient-text-alt {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #5eead4, #a5b4fc, #c084fc);
+}
+
+.glow-accent {
+  box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.25);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -79,7 +95,9 @@
   background: #334155;
 }
 
-/* Base Utility Classes */
 .transaction-table-row {
-  @apply transition-colors duration-150 hover:bg-slate-800/40;
+  transition: background-color 0.15s ease-in-out;
+}
+.transaction-table-row:hover {
+  background-color: rgba(30, 41, 59, 0.4);
 }

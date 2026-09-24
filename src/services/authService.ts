@@ -8,6 +8,11 @@ export const authService = {
     return response.data;
   },
 
+  loginDemo: async (): Promise<AuthTokens> => {
+    const response = await apiClient.post<AuthTokens>(ENDPOINTS.AUTH.DEMO, {});
+    return response.data;
+  },
+
   register: async (credentials: RegisterCredentials): Promise<RegisterResponse> => {
     const payload = {
       ...credentials,

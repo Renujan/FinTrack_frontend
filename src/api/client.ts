@@ -50,7 +50,11 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      if (originalRequest.url?.includes(ENDPOINTS.AUTH.LOGIN) || originalRequest.url?.includes(ENDPOINTS.AUTH.REFRESH)) {
+      if (
+        originalRequest.url?.includes(ENDPOINTS.AUTH.LOGIN) ||
+        originalRequest.url?.includes(ENDPOINTS.AUTH.DEMO) ||
+        originalRequest.url?.includes(ENDPOINTS.AUTH.REFRESH)
+      ) {
         return Promise.reject(error);
       }
 

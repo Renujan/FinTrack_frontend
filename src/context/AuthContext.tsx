@@ -11,6 +11,7 @@ export interface AuthContextType {
   error: string | null;
   fieldErrors: FormFieldErrors;
   login: (credentials: LoginCredentials) => Promise<void>;
+  loginDemo: () => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
@@ -75,6 +76,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginDemo = async () => {
+    try {
+      setIsLoading(true);
+      clearError();
+      const tokens = await authService.loginDemo();
+      tokenStorage.setTokens(tokens.access, tokens.refresh);
+      await refreshProfile();
+    } catch (err: unknown) {
+      const parsed = parseApiError(err, 'Failed to launch demo session.');
+      setError(parsed.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const register = async (credentials: RegisterCredentials): Promise<boolean> => {
     let autoLoggedIn = false;
     try {
@@ -133,6 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         fieldErrors,
         login,
+        loginDemo,
         register,
         logout,
         clearError,

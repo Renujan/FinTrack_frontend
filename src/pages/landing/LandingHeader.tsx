@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { TrendingUp, ArrowRight, Menu, X, Shield, Sparkles } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
+import useGlobalUI from '../../hooks/useGlobalUI';
+import { TrendingUp, ArrowRight, Menu, X, Zap, Sparkles } from 'lucide-react';
 
 interface LandingHeaderProps {
   onLoginClick?: () => void;
@@ -9,6 +11,11 @@ interface LandingHeaderProps {
 export const LandingHeader: React.FC<LandingHeaderProps> = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+
+  const { isAuthenticated, loginDemo } = useAuth();
+  const { addToast } = useGlobalUI();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +24,23 @@ export const LandingHeader: React.FC<LandingHeaderProps> = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleDemoClick = async () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+      return;
+    }
+    setIsDemoLoading(true);
+    try {
+      await loginDemo();
+      addToast('Logged in as Demo User with sample financial data!', 'success', 'Demo Account Active');
+      navigate('/dashboard');
+    } catch {
+      navigate('/login');
+    } finally {
+      setIsDemoLoading(false);
+    }
+  };
 
   return (
     <header
@@ -81,10 +105,20 @@ export const LandingHeader: React.FC<LandingHeaderProps> = () => {
           </nav>
 
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleDemoClick}
+              disabled={isDemoLoading}
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+            >
+              <Zap className="w-3.5 h-3.5 fill-emerald-400" />
+              <span>{isDemoLoading ? 'Loading...' : 'Try Demo'}</span>
+            </button>
+
             <Link
               to="/login"
-              className="text-sm font-semibold text-slate-200 hover:text-white px-4 py-2 rounded-xl transition-colors duration-200"
+              className="text-sm font-semibold text-slate-200 hover:text-white px-3 py-2 rounded-xl transition-colors duration-200"
             >
               Sign In
             </Link>

@@ -1,5 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
+import useGlobalUI from '../../hooks/useGlobalUI';
 import { 
   ArrowRight, 
   ShieldCheck, 
@@ -14,6 +16,29 @@ import {
 } from 'lucide-react';
 
 export const LandingHero: React.FC = () => {
+  const { isAuthenticated, loginDemo } = useAuth();
+  const { addToast } = useGlobalUI();
+  const navigate = useNavigate();
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+
+  const handleExploreClick = async (e: React.MouseEvent) => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+      return;
+    }
+    e.preventDefault();
+    setIsDemoLoading(true);
+    try {
+      await loginDemo();
+      addToast('Logged in as Demo User with sample financial data!', 'success', 'Demo Account Active');
+      navigate('/dashboard');
+    } catch {
+      navigate('/login');
+    } finally {
+      setIsDemoLoading(false);
+    }
+  };
+
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
       {/* Dynamic Background Mesh & Ambient Glows */}
@@ -44,21 +69,23 @@ export const LandingHero: React.FC = () => {
 
           {/* Action CTAs */}
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/register"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-bold text-base hover:shadow-2xl hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3 group"
+            <button
+              onClick={handleExploreClick}
+              disabled={isDemoLoading}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-bold text-base hover:shadow-2xl hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer group disabled:opacity-50"
             >
-              <span>Get Started Free — 14 Days</span>
+              <span>{isDemoLoading ? 'Launching Demo...' : 'Try Demo Account — Free'}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </button>
 
-            <Link
-              to="/dashboard"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 text-slate-200 border border-slate-700/80 font-semibold text-base backdrop-blur-xl transition-all duration-200 flex items-center justify-center gap-2"
+            <button
+              onClick={handleExploreClick}
+              disabled={isDemoLoading}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 text-slate-200 border border-slate-700/80 font-semibold text-base backdrop-blur-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Zap className="w-4 h-4 text-amber-400 fill-amber-400/20" />
-              <span>Explore Live App</span>
-            </Link>
+              <span>{isDemoLoading ? 'Loading App...' : 'Explore Live App'}</span>
+            </button>
           </div>
 
           {/* Trust Highlights */}

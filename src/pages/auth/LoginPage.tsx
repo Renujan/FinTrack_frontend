@@ -7,7 +7,7 @@ import Input from '../../components/ui/Input';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import { FormFieldErrors } from '../../types/user';
 import { validateLoginForm } from '../../utils/validation';
-import { Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, ArrowRight, Zap, Sparkles } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -15,8 +15,9 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [clientErrors, setClientErrors] = useState<FormFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
 
-  const { login, error, fieldErrors, clearError } = useAuth();
+  const { login, loginDemo, error, fieldErrors, clearError } = useAuth();
   const { addToast } = useGlobalUI();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,7 +28,6 @@ export const LoginPage: React.FC = () => {
     if (field === 'username') setUsername(value);
     if (field === 'password') setPassword(value);
 
-    // Clear field specific error when typing
     if (clientErrors[field]) {
       setClientErrors((prev) => ({ ...prev, [field]: '' }));
     }
@@ -36,11 +36,9 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  // Submit credentials to Login API endpoint
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Client-side validation
     const validationErrors = validateLoginForm(username, password);
     if (Object.keys(validationErrors).length > 0) {
       setClientErrors(validationErrors);
@@ -51,14 +49,35 @@ export const LoginPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Execute authentication login API service request
       await login({ username: username.trim(), password });
       addToast('Welcome back to FinTrack!', 'success', 'Login Successful');
       navigate(from, { replace: true });
     } catch {
-      // API authentication errors caught and handled via AuthContext state
+      // Handled in context
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setIsDemoSubmitting(true);
+    setUsername('demo');
+    setPassword('demo12345');
+    try {
+      await loginDemo();
+      addToast('Logged in as Demo User with sample financial data!', 'success', 'Demo Account Active');
+      navigate('/dashboard', { replace: true });
+    } catch {
+      // Fallback to standard login with pre-configured demo credentials if direct endpoint fails
+      try {
+        await login({ username: 'demo', password: 'demo12345' });
+        addToast('Logged in as Demo User with sample financial data!', 'success', 'Demo Account Active');
+        navigate('/dashboard', { replace: true });
+      } catch (fallbackErr) {
+        addToast('Failed to connect to Demo service. Please ensure backend is running.', 'error', 'Demo Connection Error');
+      }
+    } finally {
+      setIsDemoSubmitting(false);
     }
   };
 
@@ -72,8 +91,43 @@ export const LoginPage: React.FC = () => {
           Welcome back 👋
         </h2>
         <p className="text-xs text-slate-400 mt-1.5">
-          Enter your credentials to access your financial dashboard
+          Enter your credentials or try our interactive demo account
         </p>
+      </div>
+
+      {/* One-Click Demo Account Banner */}
+      <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-500/30 text-center relative overflow-hidden">
+        <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
+          <Sparkles className="w-4 h-4 animate-pulse" />
+          <span>Want to test without signing up?</span>
+        </div>
+        <p className="text-[11px] text-slate-300 mb-3">
+          Explore all features pre-loaded with realistic sample data.
+        </p>
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          disabled={isDemoSubmitting || isSubmitting}
+          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold text-xs hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {isDemoSubmitting ? (
+            <span>Launching Demo...</span>
+          ) : (
+            <>
+              <Zap className="w-4 h-4 fill-slate-950" />
+              <span>One-Click Demo Account Login</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      <div className="relative my-5 text-center">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-800" />
+        </div>
+        <span className="relative px-3 bg-slate-900 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          Or sign in manually
+        </span>
       </div>
 
       {error && (
@@ -88,12 +142,12 @@ export const LoginPage: React.FC = () => {
         <Input
           label="Username or Email"
           type="text"
-          placeholder="Enter your username"
+          placeholder="Enter username (or demo)"
           value={username}
           onChange={(e) => handleInputChange('username', e.target.value)}
           leftIcon={<User className="w-4 h-4 text-emerald-400/80" />}
           error={usernameError}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isDemoSubmitting}
           autoComplete="username"
           aria-required="true"
           required
@@ -118,7 +172,7 @@ export const LoginPage: React.FC = () => {
             </button>
           }
           error={passwordError}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isDemoSubmitting}
           autoComplete="current-password"
           required
         />
@@ -141,7 +195,7 @@ export const LoginPage: React.FC = () => {
           variant="primary"
           className="w-full mt-3 py-3 text-sm font-semibold tracking-wide"
           isLoading={isSubmitting}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isDemoSubmitting}
           rightIcon={<ArrowRight className="w-4 h-4" />}
         >
           {isSubmitting ? 'Signing in...' : 'Sign In'}

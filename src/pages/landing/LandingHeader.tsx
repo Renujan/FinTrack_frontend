@@ -26,10 +26,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = () => {
   }, []);
 
   const handleDemoClick = async () => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-      return;
-    }
     setIsDemoLoading(true);
     try {
       await loginDemo();

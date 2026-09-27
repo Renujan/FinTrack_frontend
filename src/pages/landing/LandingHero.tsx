@@ -22,10 +22,6 @@ export const LandingHero: React.FC = () => {
   const [isDemoLoading, setIsDemoLoading] = useState(false);
 
   const handleExploreClick = async (e: React.MouseEvent) => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-      return;
-    }
     e.preventDefault();
     setIsDemoLoading(true);
     try {

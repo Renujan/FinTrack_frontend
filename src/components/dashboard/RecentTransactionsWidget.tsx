@@ -60,7 +60,8 @@ export const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> =
             return (
               <div
                 key={tx.id}
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 hover:border-slate-700/80 transition"
+                onClick={() => navigate('/transactions')}
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 hover:border-slate-700/80 hover:bg-slate-900/60 transition cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div

@@ -58,6 +58,9 @@ export const DashboardPage: React.FC = () => {
 
   const handlePeriodChange = (filter: 'month' | 'all') => {
     setPeriodFilter(filter);
+    if (periodFilter === filter) {
+      fetchDashboardData(true);
+    }
   };
 
   return (

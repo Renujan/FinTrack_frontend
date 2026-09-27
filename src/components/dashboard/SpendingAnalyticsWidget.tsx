@@ -85,7 +85,11 @@ export const SpendingAnalyticsWidget: React.FC<SpendingAnalyticsWidgetProps> = (
               const percent = cat.percentage || 0;
 
               return (
-                <div key={idx} className="space-y-1">
+                <div
+                  key={idx}
+                  onClick={() => navigate('/analytics')}
+                  className="space-y-1 p-2 rounded-xl hover:bg-slate-900/60 transition cursor-pointer"
+                >
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-300 font-medium">{cat.category}</span>
                     <div className="flex items-center gap-2 font-mono text-[11px]">

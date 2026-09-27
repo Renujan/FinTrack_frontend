@@ -209,7 +209,7 @@ export const BudgetFormModal: React.FC<BudgetFormModalProps> = ({
               className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition"
             >
               <option value="">Overall Budget (Applies to all expenses)</option>
-              {categories.map((cat) => (
+              {(Array.isArray(categories) ? categories : (categories as any)?.results || []).map((cat: any) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>

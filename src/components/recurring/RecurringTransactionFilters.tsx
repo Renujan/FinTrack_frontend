@@ -85,7 +85,7 @@ export const RecurringTransactionFilters: React.FC<RecurringTransactionFiltersPr
             disabled={isLoading}
           >
             <option value="">All Categories</option>
-            {categories.map((cat) => (
+            {(Array.isArray(categories) ? categories : (categories as any)?.results || []).map((cat: any) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>

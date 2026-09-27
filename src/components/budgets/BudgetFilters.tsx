@@ -91,7 +91,7 @@ export const BudgetFilters: React.FC<BudgetFiltersProps> = ({
             <option value="">All Categories & Scopes</option>
             <option value="overall">Overall Budget Only</option>
             <optgroup label="Categories">
-              {categories.map((cat) => (
+              {(Array.isArray(categories) ? categories : (categories as any)?.results || []).map((cat: any) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>

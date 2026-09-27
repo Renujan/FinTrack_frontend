@@ -48,9 +48,10 @@ export const BudgetsPage: React.FC = () => {
   const loadCategories = useCallback(async () => {
     try {
       const res = await categoryService.getCategories({ page_size: 100 });
-      setCategories(res.results || []);
+      const list = Array.isArray(res) ? res : res?.results || [];
+      setCategories(list);
     } catch {
-      // Non-critical if categories fail to load
+      setCategories([]);
     }
   }, []);
 

@@ -73,9 +73,10 @@ export const RecurringPage: React.FC = () => {
   const loadCategories = useCallback(async () => {
     try {
       const catList = await categoryService.getCategories();
-      setCategories(catList);
+      const list = Array.isArray(catList) ? catList : catList?.results || [];
+      setCategories(list);
     } catch {
-      // Non-blocking fallback
+      setCategories([]);
     }
   }, []);
 

@@ -80,7 +80,11 @@ export const GoalsOverviewWidget: React.FC<GoalsOverviewWidgetProps> = ({
               const percent = Math.min(goal.percentage_complete || (target > 0 ? (current / target) * 100 : 0), 100);
 
               return (
-                <div key={goal.id} className="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 space-y-2">
+                <div
+                  key={goal.id}
+                  onClick={() => navigate('/goals')}
+                  className="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/60 transition cursor-pointer space-y-2"
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">

@@ -23,7 +23,8 @@ export const IncomeByCategory: React.FC<IncomeByCategoryProps> = ({
     );
   }
 
-  const totalIncome = categories.reduce(
+  const categoryList = Array.isArray(categories) ? categories : (categories as any)?.results || [];
+  const totalIncome = categoryList.reduce(
     (acc, item) => acc + (item.amount || item.income || 0),
     0
   );
@@ -35,12 +36,12 @@ export const IncomeByCategory: React.FC<IncomeByCategoryProps> = ({
       headerAction={
         <div className="flex items-center gap-1 text-xs text-slate-400">
           <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
-          <span>{categories.length} Sources</span>
+          <span>{categoryList.length} Sources</span>
         </div>
       }
     >
       <div className="space-y-4 my-2">
-        {categories.map((item, index) => {
+        {categoryList.map((item, index) => {
           const amt = item.amount !== undefined ? item.amount : item.income || 0;
           const pct =
             item.percentage !== undefined

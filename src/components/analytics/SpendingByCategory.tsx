@@ -23,7 +23,9 @@ export const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({
   categories,
   currency = 'USD',
 }) => {
-  if (!categories || categories.length === 0) {
+  const categoryList = Array.isArray(categories) ? categories : (categories as any)?.results || [];
+
+  if (categoryList.length === 0) {
     return (
       <Card title="Spending by Category" subtitle="Expense distribution">
         <div className="py-8 text-center text-xs text-slate-400">
@@ -33,7 +35,7 @@ export const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({
     );
   }
 
-  const totalSpent = categories.reduce(
+  const totalSpent = categoryList.reduce(
     (acc, item) => acc + (item.amount || item.spent || 0),
     0
   );
@@ -45,12 +47,12 @@ export const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({
       headerAction={
         <div className="flex items-center gap-1 text-xs text-slate-400">
           <PieChart className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{categories.length} Categories</span>
+          <span>{categoryList.length} Categories</span>
         </div>
       }
     >
       <div className="space-y-4 my-2">
-        {categories.map((item, index) => {
+        {categoryList.map((item, index) => {
           const amt = item.amount !== undefined ? item.amount : item.spent || 0;
           const pct =
             item.percentage !== undefined

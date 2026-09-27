@@ -88,9 +88,10 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
     try {
       setLoadingCategories(true);
       const data = await categoryService.getCategories();
-      setCategories(data);
+      const list = Array.isArray(data) ? data : data?.results || [];
+      setCategories(list);
     } catch {
-      // Ignore category load error if unauthenticated/empty
+      setCategories([]);
     } finally {
       setLoadingCategories(false);
     }
@@ -279,7 +280,7 @@ export const GoalFormModal: React.FC<GoalFormModalProps> = ({
               disabled={isSubmitting || loadingCategories}
             >
               <option value="">No Category</option>
-              {categories.map((c) => (
+              {(Array.isArray(categories) ? categories : (categories as any)?.results || []).map((c: any) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>

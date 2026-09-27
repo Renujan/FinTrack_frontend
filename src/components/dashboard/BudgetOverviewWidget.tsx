@@ -96,7 +96,11 @@ export const BudgetOverviewWidget: React.FC<BudgetOverviewWidgetProps> = ({
               }
 
               return (
-                <div key={budget.id} className="space-y-1">
+                <div
+                  key={budget.id}
+                  onClick={() => navigate('/budgets')}
+                  className="space-y-1 p-2 rounded-xl hover:bg-slate-900/60 transition cursor-pointer"
+                >
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-300 font-medium flex items-center gap-1.5">
                       {budget.name}

@@ -50,7 +50,8 @@ export const CategoriesPage: React.FC = () => {
         categoryService.getCategories(filters),
         categoryService.getCategoryStatsMap(),
       ]);
-      setCategories(catRes.results);
+      const list = Array.isArray(catRes) ? catRes : catRes?.results || [];
+      setCategories(list);
       setStatsMap(statsRes);
     } catch (err: unknown) {
       const parsed = parseApiError(err, 'Failed to load categories.');

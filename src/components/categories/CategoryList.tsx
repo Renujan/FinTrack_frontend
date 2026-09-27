@@ -52,6 +52,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     );
   }
 
+  const categoryList = Array.isArray(categories) ? categories : (categories as any)?.results || [];
+
   if (viewMode === 'table') {
     return (
       <Card className="overflow-hidden p-0">
@@ -66,7 +68,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
-              {categories.map((category) => {
+              {categoryList.map((category) => {
                 const stat = statsMap[category.id];
                 const txCount = stat ? stat.transaction_count : 0;
 
@@ -127,7 +129,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   // Grid Card Layout
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {categories.map((category) => {
+      {categoryList.map((category) => {
         const stat = statsMap[category.id];
         const txCount = stat ? stat.transaction_count : 0;
 

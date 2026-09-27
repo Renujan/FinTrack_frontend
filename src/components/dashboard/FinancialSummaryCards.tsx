@@ -6,6 +6,8 @@ import { DashboardFinancialSummary, IncomeExpenseOverview } from '../../types/da
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
 
+import { useNavigate } from 'react-router-dom';
+
 export interface FinancialSummaryCardsProps {
   summary?: DashboardFinancialSummary;
   overview?: IncomeExpenseOverview;
@@ -15,6 +17,7 @@ export const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({
   summary,
   overview,
 }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const currency = user?.currency || 'USD';
 
@@ -31,7 +34,10 @@ export const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {/* Current Balance Card */}
-      <Card className="relative overflow-hidden border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20">
+      <Card
+        onClick={() => navigate('/transactions')}
+        className="relative overflow-hidden border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 cursor-pointer hover:border-emerald-500/40 transition-all"
+      >
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400 font-medium tracking-wide">Current Balance</span>
           <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -56,7 +62,10 @@ export const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({
       </Card>
 
       {/* Total Income Card */}
-      <Card className="relative overflow-hidden">
+      <Card
+        onClick={() => navigate('/transactions')}
+        className="relative overflow-hidden cursor-pointer hover:border-slate-700 transition-all"
+      >
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400 font-medium tracking-wide">Total Income</span>
           <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
@@ -82,7 +91,10 @@ export const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({
       </Card>
 
       {/* Total Expenses Card */}
-      <Card className="relative overflow-hidden">
+      <Card
+        onClick={() => navigate('/transactions')}
+        className="relative overflow-hidden cursor-pointer hover:border-slate-700 transition-all"
+      >
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400 font-medium tracking-wide">Total Expenses</span>
           <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
@@ -108,7 +120,10 @@ export const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({
       </Card>
 
       {/* Net Savings Card */}
-      <Card className="relative overflow-hidden">
+      <Card
+        onClick={() => navigate('/analytics')}
+        className="relative overflow-hidden cursor-pointer hover:border-slate-700 transition-all"
+      >
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400 font-medium tracking-wide">Net Savings</span>
           <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">

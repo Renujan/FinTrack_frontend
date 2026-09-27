@@ -12,6 +12,13 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
+      navigate(`/transactions?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -52,6 +59,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
           <input
             type="text"
             placeholder="Search transactions, budgets, goals..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             className="w-full bg-slate-900/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all"
           />
         </div>

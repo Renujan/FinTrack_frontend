@@ -65,9 +65,10 @@ export const TransactionsPage: React.FC = () => {
   const loadCategories = useCallback(async () => {
     try {
       const catList = await categoryService.getCategories();
-      setCategories(catList);
+      const list = Array.isArray(catList) ? catList : catList?.results || [];
+      setCategories(list);
     } catch {
-      // Non-blocking fallback if categories fails
+      setCategories([]);
     }
   }, []);
 

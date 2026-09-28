@@ -4,6 +4,7 @@ import Sidebar from '../components/layout/Sidebar';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import CommandPalette from '../components/common/CommandPalette';
+import KeyboardShortcutsModal from '../components/common/KeyboardShortcutsModal';
 import useGlobalUI from '../hooks/useGlobalUI';
 import { CheckCircle2, AlertTriangle, Info, XCircle, X } from 'lucide-react';
 
@@ -11,6 +12,7 @@ export const AppLayout: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
   const { toasts, removeToast } = useGlobalUI();
 
   useEffect(() => {
@@ -18,6 +20,9 @@ export const AppLayout: React.FC = () => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
+      } else if (e.key === '?' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
       }
     };
     const handleCustomOpen = () => setIsCommandPaletteOpen(true);
@@ -87,6 +92,12 @@ export const AppLayout: React.FC = () => {
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
+      />
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
 
       {/* Toast Notification Container */}

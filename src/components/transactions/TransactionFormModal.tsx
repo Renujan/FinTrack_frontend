@@ -3,8 +3,8 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import ErrorMessage from '../common/ErrorMessage';
-import { Category, Transaction, TransactionFormData, TransactionType } from '../../types/transaction';
-import { ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Category, Transaction, TransactionFormData } from '../../types/transaction';
+import { ArrowUpRight, ArrowDownLeft, Calendar, Tag, DollarSign } from 'lucide-react';
 
 export interface TransactionFormModalProps {
   isOpen: boolean;
@@ -30,6 +30,15 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   const isEdit = Boolean(initialData);
 
   const getTodayDateString = () => new Date().toISOString().split('T')[0];
+  const getYesterdayDateString = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().split('T')[0];
+  };
+
+  const normalizedCategories: Category[] = Array.isArray(categories)
+    ? categories
+    : (categories as any)?.results || [];
 
   const [formData, setFormData] = useState<TransactionFormData>({
     transaction_type: 'EXPENSE',
@@ -41,7 +50,6 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
 
-  // Synchronize form state on initial load or editing target transaction change
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -56,7 +64,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         transaction_type: 'EXPENSE',
         description: '',
         amount: '',
-        category: categories.length > 0 ? categories[0].id : '',
+        category: normalizedCategories.length > 0 ? normalizedCategories[0].id : '',
         date: getTodayDateString(),
       });
     }
@@ -98,6 +106,11 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     };
 
     await onSubmit(payload);
+  };
+
+  const handleAddAmount = (addVal: number) => {
+    const current = parseFloat(String(formData.amount)) || 0;
+    setFormData((prev) => ({ ...prev, amount: (current + addVal).toFixed(2) }));
   };
 
   const combinedErrors = { ...clientErrors, ...fieldErrors };
@@ -143,19 +156,34 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           </div>
         </div>
 
-        {/* Amount */}
-        <Input
-          label="Amount"
-          type="number"
-          step="0.01"
-          min="0.01"
-          placeholder="0.00"
-          value={formData.amount}
-          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-          error={combinedErrors.amount}
-          disabled={isLoading}
-          required
-        />
+        {/* Amount Input with Quick Addition Chips */}
+        <div>
+          <Input
+            label="Amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            placeholder="0.00"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            error={combinedErrors.amount}
+            disabled={isLoading}
+            required
+          />
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="text-[10px] text-slate-400 font-medium">Quick add:</span>
+            {[10, 50, 100, 500].map((val) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => handleAddAmount(val)}
+                className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-[10px] font-semibold text-slate-300 transition"
+              >
+                +${val}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Description */}
         <Input
@@ -169,9 +197,35 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           required
         />
 
-        {/* Category Selection */}
+        {/* Category Selection with Quick Chips */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-slate-300">Category</label>
+          <label className="block text-xs font-medium text-slate-300 flex items-center gap-1">
+            <Tag className="w-3.5 h-3.5 text-emerald-400" /> Category
+          </label>
+
+          {/* Top 4 Quick Category Pills */}
+          {normalizedCategories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-1.5">
+              {normalizedCategories.slice(0, 5).map((cat) => {
+                const isSelected = String(formData.category) === String(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, category: cat.id })}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition ${
+                      isSelected
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold'
+                        : 'bg-slate-800/80 text-slate-400 border border-slate-700/80 hover:text-slate-200'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <select
             value={formData.category || ''}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -183,7 +237,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             <option value="" disabled>
               Select Category
             </option>
-            {(Array.isArray(categories) ? categories : (categories as any)?.results || []).map((cat: any) => (
+            {normalizedCategories.map((cat: any) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -194,16 +248,37 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           )}
         </div>
 
-        {/* Date */}
-        <Input
-          label="Date"
-          type="date"
-          value={formData.date}
-          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-          error={combinedErrors.date}
-          disabled={isLoading}
-          required
-        />
+        {/* Date Input with Presets */}
+        <div>
+          <Input
+            label="Date"
+            type="date"
+            value={formData.date}
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+            error={combinedErrors.date}
+            disabled={isLoading}
+            required
+          />
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-emerald-400" /> Presets:
+            </span>
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, date: getTodayDateString() })}
+              className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-[10px] font-medium text-slate-300 transition"
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, date: getYesterdayDateString() })}
+              className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-[10px] font-medium text-slate-300 transition"
+            >
+              Yesterday
+            </button>
+          </div>
+        </div>
 
         {/* Modal Buttons */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">

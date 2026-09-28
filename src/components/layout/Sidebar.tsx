@@ -14,12 +14,14 @@ import {
   ChevronLeft,
   ChevronRight,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 
 export interface SidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  onCloseMobile?: () => void;
 }
 
 export const navItems = [
@@ -35,16 +37,16 @@ export const navItems = [
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onCloseMobile }) => {
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 z-40 bg-slate-950/85 backdrop-blur-xl border-r border-slate-800/80 transition-all duration-300 flex flex-col ${
+      className={`fixed left-0 top-0 bottom-0 z-40 bg-slate-950/90 backdrop-blur-xl border-r border-slate-800/80 transition-all duration-300 flex flex-col ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Brand Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800/80">
-        <NavLink to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
+        <NavLink to="/dashboard" onClick={onCloseMobile} className="flex items-center gap-3 overflow-hidden group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-all shrink-0">
             <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
@@ -56,6 +58,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
             </span>
           )}
         </NavLink>
+
+        {/* Desktop collapse toggle */}
         <button
           onClick={onToggleCollapse}
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition hidden md:flex"
@@ -63,6 +67,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
         >
           {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
+
+        {/* Mobile close button */}
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition md:hidden"
+            aria-label="Close mobile sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation Items */}
@@ -73,17 +88,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={onCloseMobile}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                `relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                   isActive
-                    ? 'bg-gradient-to-r from-emerald-500/15 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-md shadow-emerald-500/5 font-semibold'
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-md shadow-emerald-500/5 font-semibold'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 hover:border hover:border-slate-800/60'
                 }`
               }
               title={isCollapsed ? item.label : undefined}
             >
-              <Icon className="w-5 h-5 shrink-0" />
-              {!isCollapsed && <span>{item.label}</span>}
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-emerald-400 rounded-r-full shadow-glow" />
+                  )}
+                  <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-105 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                  {!isCollapsed && <span>{item.label}</span>}
+                </>
+              )}
             </NavLink>
           );
         })}
@@ -91,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
 
       {/* Quick Status Footer */}
       {!isCollapsed && (
-        <div className="p-4 m-3 rounded-2xl bg-slate-900/90 border border-slate-800/90 text-xs text-slate-400 relative overflow-hidden">
+        <div className="p-4 m-3 rounded-2xl bg-slate-900/90 border border-slate-800/90 text-xs text-slate-400 relative overflow-hidden group">
           <div className="flex items-center justify-between font-semibold text-slate-200 mb-1">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" /> FinTrack SaaS

@@ -60,10 +60,10 @@ export const AppLayout: React.FC = () => {
           onClick={toggleMobileSidebar}
         >
           <div
-            className="w-64 h-full bg-slate-900 border-r border-slate-800"
+            className="w-64 h-full bg-slate-900 border-r border-slate-800 animate-in slide-in-from-left duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <Sidebar isCollapsed={false} onToggleCollapse={toggleMobileSidebar} />
+            <Sidebar isCollapsed={false} onToggleCollapse={toggleMobileSidebar} onCloseMobile={toggleMobileSidebar} />
           </div>
         </div>
       )}

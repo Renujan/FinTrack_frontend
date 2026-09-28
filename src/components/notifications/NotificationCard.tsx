@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   Archive,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface NotificationCardProps {
@@ -33,13 +34,13 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'CRITICAL':
-        return <Badge variant="danger">CRITICAL</Badge>;
+        return <Badge variant="danger" size="sm">CRITICAL</Badge>;
       case 'HIGH':
-        return <Badge variant="warning">HIGH</Badge>;
+        return <Badge variant="warning" size="sm">HIGH</Badge>;
       case 'MEDIUM':
-        return <Badge variant="info">MEDIUM</Badge>;
+        return <Badge variant="info" size="sm">MEDIUM</Badge>;
       default:
-        return <Badge variant="neutral">LOW</Badge>;
+        return <Badge variant="secondary" size="sm">LOW</Badge>;
     }
   };
 
@@ -56,40 +57,46 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
     if (type.includes('EXPENSE') || type.includes('INCOME')) {
       return <DollarSign className="w-5 h-5 text-cyan-400 shrink-0" />;
     }
-    return <Info className="w-5 h-5 text-blue-400 shrink-0" />;
+    return <Info className="w-5 h-5 text-sky-400 shrink-0" />;
   };
 
   return (
     <div
-      className={`p-4 rounded-2xl border transition-all ${
+      className={`relative p-4 rounded-2xl border transition-all duration-200 overflow-hidden ${
         notification.is_read
-          ? 'bg-slate-900/40 border-slate-800/80 opacity-75'
-          : 'bg-slate-900/90 border-slate-700/80 shadow-lg ring-1 ring-emerald-500/10'
+          ? 'bg-slate-900/40 border-slate-800/80 opacity-75 hover:opacity-100'
+          : 'bg-slate-900/90 border-slate-700/80 shadow-lg ring-1 ring-emerald-500/20'
       }`}
     >
+      {!notification.is_read && (
+        <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-400 to-teal-500 shadow-glow" />
+      )}
+
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+          <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
             {getTypeIcon(notification.notification_type)}
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
               <h4
-                className={`text-sm font-semibold ${
+                className={`text-sm font-bold ${
                   notification.is_read ? 'text-slate-300' : 'text-slate-100'
                 }`}
               >
                 {notification.title}
               </h4>
               {!notification.is_read && (
-                <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                  NEW
+                </span>
               )}
               {getPriorityBadge(notification.priority)}
             </div>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            <p className="text-xs text-slate-300 leading-relaxed">
               {notification.message}
             </p>
-            <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+            <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1 font-mono">
               <Bell className="w-3 h-3 text-slate-600" />
               <span>{new Date(notification.created_at).toLocaleString()}</span>
             </p>

@@ -2,7 +2,8 @@ import React from 'react';
 import Card from '../ui/Card';
 import { CategoryAnalyticsItem } from '../../types/analytics';
 import { formatCurrency } from '../../utils/formatters';
-import { PieChart, Tag } from 'lucide-react';
+import { getCategoryStyle } from '../../utils/categoryBadge';
+import { PieChart, Tag, Sparkles } from 'lucide-react';
 
 interface SpendingByCategoryProps {
   categories: CategoryAnalyticsItem[];
@@ -45,7 +46,7 @@ export const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({
       title="Spending by Category"
       subtitle="Expense category distribution"
       headerAction={
-        <div className="flex items-center gap-1 text-xs text-slate-400">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400 bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-800">
           <PieChart className="w-3.5 h-3.5 text-emerald-400" />
           <span>{categoryList.length} Categories</span>
         </div>
@@ -62,30 +63,32 @@ export const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({
               : 0;
 
           const colorGradient = CATEGORY_COLORS[index % CATEGORY_COLORS.length];
+          const catStyle = getCategoryStyle(item.category);
 
           return (
-            <div key={item.category_id || index} className="space-y-1">
+            <div key={item.category_id || index} className="space-y-1.5 group p-2 rounded-xl hover:bg-slate-950/40 transition-colors">
               <div className="flex justify-between items-center text-xs">
                 <div className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full bg-gradient-to-r ${colorGradient}`} />
-                  <span className="font-semibold text-slate-200">{item.category}</span>
+                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${catStyle.bg} ${catStyle.text} ${catStyle.border}`}>
+                    {item.category}
+                  </span>
                   {item.transaction_count !== undefined && (
                     <span className="text-[10px] text-slate-400">
                       ({item.transaction_count} txns)
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-100">
+                <div className="flex items-center gap-2 font-mono">
+                  <span className="font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
                     {formatCurrency(amt, currency)}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400 w-10 text-right">
+                  <span className="text-[10px] font-bold text-slate-400 w-10 text-right bg-slate-800/80 px-1.5 py-0.5 rounded">
                     {pct.toFixed(1)}%
                   </span>
                 </div>
               </div>
 
-              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800/80 p-0.5">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${colorGradient} transition-all duration-500`}
                   style={{ width: `${Math.min(100, Math.max(1, pct))}%` }}

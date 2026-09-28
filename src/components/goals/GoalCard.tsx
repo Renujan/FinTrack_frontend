@@ -12,8 +12,9 @@ import {
   PauseCircle,
   Play,
   XCircle,
-  Flame,
   Tag,
+  Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import { Goal } from '../../types/goal';
 import { formatCurrency, formatDate } from '../../utils/formatters';
@@ -57,6 +58,15 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       ? Math.min(100, (currentAmount / targetAmount) * 100)
       : 0;
 
+  // Calculate monthly savings rate required to reach goal on time
+  const targetDateObj = goal.target_date ? new Date(goal.target_date) : null;
+  const now = new Date();
+  const monthsRemaining = targetDateObj
+    ? Math.max(1, (targetDateObj.getFullYear() - now.getFullYear()) * 12 + (targetDateObj.getMonth() - now.getMonth()))
+    : 1;
+
+  const monthlyPace = remainingAmount > 0 ? remainingAmount / monthsRemaining : 0;
+
   const getStatusBadge = () => {
     switch (goal.status) {
       case 'COMPLETED':
@@ -96,12 +106,12 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   };
 
   return (
-    <Card className="hover:border-slate-700 transition-all duration-200 flex flex-col justify-between bg-slate-900 border-slate-800">
+    <Card className="hover:border-slate-700 hover:shadow-xl transition-all duration-200 flex flex-col justify-between bg-slate-900 border-slate-800 group">
       <div>
         {/* Card Header */}
         <div className="flex justify-between items-start mb-3 gap-2">
           <div>
-            <div className="flex items-center gap-2 flex-wrap mb-1">
+            <div className="flex items-center gap-2 flex-wrap mb-1.5">
               <span className="text-xs text-slate-400 font-medium px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700/60 inline-flex items-center gap-1">
                 <Tag className="w-3 h-3 text-emerald-400" />
                 {formatGoalType(goal.goal_type)}
@@ -109,7 +119,9 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               {getPriorityBadge()}
               {getStatusBadge()}
             </div>
-            <h3 className="text-base font-bold text-white tracking-wide">{goal.name}</h3>
+            <h3 className="text-base font-bold text-white tracking-wide group-hover:text-emerald-300 transition-colors">
+              {goal.name}
+            </h3>
             {goal.description && (
               <p className="text-xs text-slate-400 mt-1 line-clamp-2">{goal.description}</p>
             )}
@@ -117,36 +129,50 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         </div>
 
         {/* Progress Bar & Amounts */}
-        <div className="my-4 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2">
+        <div className="my-4 p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2.5">
           <div className="flex justify-between items-baseline">
-            <span className="text-lg font-bold text-emerald-400">
+            <span className="text-lg font-extrabold text-emerald-400 font-mono">
               {formatCurrency(currentAmount, currency)}
             </span>
             <span className="text-xs text-slate-400">
-              Target: <strong className="text-slate-200">{formatCurrency(targetAmount, currency)}</strong>
+              Target: <strong className="text-slate-100 font-mono">{formatCurrency(targetAmount, currency)}</strong>
             </span>
           </div>
 
-          <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden relative">
+          <div className="w-full h-3 rounded-full bg-slate-900 overflow-hidden relative border border-slate-800 p-0.5">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 goal.status === 'COMPLETED' || percentage >= 100
-                  ? 'bg-emerald-400'
+                  ? 'bg-emerald-400 shadow-glow'
                   : goal.status === 'PAUSED'
                   ? 'bg-amber-400'
-                  : 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                  : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 shadow-sm shadow-emerald-500/20'
               }`}
               style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
             />
           </div>
 
-          <div className="flex justify-between items-center text-xs pt-1">
+          <div className="flex justify-between items-center text-xs pt-0.5">
             <span className="text-slate-400">
               Remaining:{' '}
-              <strong className="text-amber-400">{formatCurrency(remainingAmount, currency)}</strong>
+              <strong className="text-amber-400 font-mono">{formatCurrency(remainingAmount, currency)}</strong>
             </span>
-            <span className="font-bold text-emerald-400">{percentage.toFixed(0)}%</span>
+            <span className="font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              {percentage.toFixed(0)}%
+            </span>
           </div>
+
+          {/* Monthly pace estimation projection */}
+          {remainingAmount > 0 && goal.status === 'ACTIVE' && (
+            <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+              <span className="flex items-center gap-1">
+                <TrendingUp className="w-3 h-3 text-emerald-400" /> Target pace ({monthsRemaining} mo):
+              </span>
+              <span className="font-mono font-semibold text-emerald-400">
+                ~{formatCurrency(monthlyPace, currency)}/mo
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Target Date & Category */}

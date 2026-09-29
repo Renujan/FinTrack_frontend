@@ -24,7 +24,9 @@ export const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({
   categories,
   currency = 'USD',
 }) => {
-  const categoryList = Array.isArray(categories) ? categories : (categories as any)?.results || [];
+  const categoryList: CategoryAnalyticsItem[] = Array.isArray(categories)
+    ? categories
+    : (categories as any)?.results || [];
 
   if (categoryList.length === 0) {
     return (
